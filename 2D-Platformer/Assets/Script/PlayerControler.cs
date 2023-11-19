@@ -21,8 +21,12 @@ public class PlayerControler : MonoBehaviour
     string iddle_parameter = "Idle";
     string jump_parameter = "Jump";
 
-
-
+    //Abilities
+    private float _dashingVelocity = 14f;
+    private float _dashingTime = 0.5f;
+    private Vector2 _dashingDir;
+    private bool _isDashing;
+    private bool _canDash = true;
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -37,11 +41,41 @@ public class PlayerControler : MonoBehaviour
     void Update()
     {
         Jump();
+        var dashInput = Input.GetKeyDown(KeyCode.LeftShift);
+
+        if (dashInput && _canDash)
+        {
+            _isDashing = true;
+            _canDash = false;
+            _dashingDir = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+            if (_dashingDir == Vector2.zero)
+            {
+                _dashingDir = new Vector2(transform.localScale.x, 0);
+            }
+            StartCoroutine(StopDashing());
+        }
+
+        if (_isDashing)
+        {
+            rb.velocity = _dashingDir.normalized * _dashingVelocity;
+            return;
+        }
+
+        if (IsGrounded())
+        {
+            _canDash = true;
+        }
     }
 
     private void FixedUpdate()
     {
         Movement();
+    }
+
+    private IEnumerator StopDashing()
+    {
+        yield return new WaitForSeconds(_dashingTime);
+        _isDashing = false;
     }
 
 
@@ -94,7 +128,6 @@ public class PlayerControler : MonoBehaviour
     }
 
 
-
     bool IsGrounded()                                                            //Fungsi mengecek apakah player ada di darat atau tidak
     {
         return Physics2D.OverlapCircle(groundChecker.position, radius, WhatIsGround);
@@ -105,4 +138,6 @@ public class PlayerControler : MonoBehaviour
     {
         Gizmos.DrawWireSphere(groundChecker.position, radius);
     }
+
+
 }
