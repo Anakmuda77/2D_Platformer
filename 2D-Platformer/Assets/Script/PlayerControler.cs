@@ -9,7 +9,11 @@ public class PlayerControler : MonoBehaviour
     public float movementSpeed, jumpForce;
     public bool isFacingRight, isJumping;
     Rigidbody2D rb;
-
+    public float dashSpeed = 10f;
+    private bool isDashing = false;
+    public float dashDuration = 0.5f;
+    private float dashTime;
+    private float originalGravityScale; // Store the original gravity scale
     // Untuk Ground Checker
     public float radius;
     public Transform groundChecker;
@@ -21,15 +25,10 @@ public class PlayerControler : MonoBehaviour
     string iddle_parameter = "Idle";
     string jump_parameter = "Jump";
 
-    //Abilities
-    private float _dashingVelocity = 14f;
-    private float _dashingTime = 0.5f;
-    private Vector2 _dashingDir;
-    private bool _isDashing;
-    private bool _canDash = true;
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        originalGravityScale = rb.gravityScale;
         anim=GetComponent<Animator>();
     }
     void Start()
@@ -37,54 +36,53 @@ public class PlayerControler : MonoBehaviour
         
     }
 
-    // Update is called once per frame
+
+
     void Update()
     {
         Jump();
-        var dashInput = Input.GetKeyDown(KeyCode.LeftShift);
-
-        if (dashInput && _canDash)
-        {
-            _isDashing = true;
-            _canDash = false;
-            _dashingDir = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-            if (_dashingDir == Vector2.zero)
-            {
-                _dashingDir = new Vector2(transform.localScale.x, 0);
-            }
-            StartCoroutine(StopDashing());
-        }
-
-        if (_isDashing)
-        {
-            rb.velocity = _dashingDir.normalized * _dashingVelocity;
-            return;
-        }
-
-        if (IsGrounded())
-        {
-            _canDash = true;
-        }
+        Movement(); // Call the Dash function in the Update method
     }
 
     private void FixedUpdate()
     {
-        Movement();
-    }
 
-    private IEnumerator StopDashing()
-    {
-        yield return new WaitForSeconds(_dashingTime);
-        _isDashing = false;
     }
-
 
     void Movement()
-    {   
-        float move = Input.GetAxisRaw("Horizontal");                            //Fungsi untuk menggerakkan player berdasarkan input horizontal
-        rb.velocity = new Vector2(move*movementSpeed, rb.velocity.y);
+{
+    float move = Input.GetAxisRaw("Horizontal");
 
-        if (move != 0)                                                          //Menggerakkan animasi iddle ke walk atau sebaliknya
+    // Check for left shift key to initiate dash
+    if (Input.GetKeyDown(KeyCode.LeftShift) && !isDashing)
+    {
+        isDashing = true;
+        dashTime = Time.time;
+
+        // Disable gravity while dashing
+        rb.gravityScale = 0f;
+
+        // Normalize the dash direction to move in a straight line
+        float dashDirection = isFacingRight ? 1f : -1f;
+        Vector2 normalizedDashDirection = new Vector2(dashDirection, 0f).normalized;
+        rb.velocity = normalizedDashDirection * dashSpeed;
+    }
+
+    if (isDashing)
+    {
+        // Check if dash time has expired
+        if (Time.time >= dashTime + dashDuration)
+        {
+            isDashing = false;
+            rb.velocity = new Vector2(0f, rb.velocity.y); // Stop dashing
+            rb.gravityScale = originalGravityScale; // Restore the original gravity scale
+        }
+    }
+    else
+    {
+        rb.velocity = new Vector2(move * movementSpeed, rb.velocity.y);
+
+        if (move != 0)
         {
             anim.SetTrigger(walk_parameter);
         }
@@ -93,19 +91,18 @@ public class PlayerControler : MonoBehaviour
             anim.SetTrigger(iddle_parameter);
         }
 
-
-        if(move>0 && !isFacingRight)                                            //Untuk membuat player bisa berbalik kiri dan kanan
+        if (move > 0 && !isFacingRight)
         {
             transform.eulerAngles = Vector2.zero;
-            isFacingRight= true;
-        } 
-        else if(move<0 && isFacingRight)
+            isFacingRight = true;
+        }
+        else if (move < 0 && isFacingRight)
         {
             transform.eulerAngles = Vector2.up * 180;
-            isFacingRight= false; 
+            isFacingRight = false;
         }
     }
-
+}
 
     void Jump()
     {
@@ -127,6 +124,11 @@ public class PlayerControler : MonoBehaviour
         }
     }
 
+    IEnumerator DashCooldown()
+    {
+        // Add a cooldown to prevent continuous dashing
+        yield return new WaitForSeconds(1f);
+    }
 
     bool IsGrounded()                                                            //Fungsi mengecek apakah player ada di darat atau tidak
     {
@@ -138,6 +140,4 @@ public class PlayerControler : MonoBehaviour
     {
         Gizmos.DrawWireSphere(groundChecker.position, radius);
     }
-
-
 }
