@@ -21,6 +21,18 @@ public class PlayerControler : MonoBehaviour
     string iddle_parameter = "Idle";
     string jump_parameter = "Jump";
 
+    // Knock Back Effect
+    public float KBForce;       //Kekuatan knock bacnk
+    public float KBCounter;
+    public float KBTotalTime;
+
+
+    public bool KnockFromRight;
+
+    // Respawn
+    public Vector2 respawnPoint;
+
+
 
 
     private void Awake()
@@ -30,7 +42,8 @@ public class PlayerControler : MonoBehaviour
     }
     void Start()
     {
-        
+        respawnPoint = transform.position;      //Posisi awal dari player
+
     }
 
     // Update is called once per frame
@@ -47,8 +60,26 @@ public class PlayerControler : MonoBehaviour
 
     void Movement()
     {   
-        float move = Input.GetAxisRaw("Horizontal");                            //Fungsi untuk menggerakkan player berdasarkan input horizontal
-        rb.velocity = new Vector2(move*movementSpeed, rb.velocity.y);
+        float move = Input.GetAxisRaw("Horizontal");     //Fungsi untuk menggerakkan player berdasarkan input horizontal
+
+        if(KBCounter <= 0)
+        {
+            rb.velocity = new Vector2(move * movementSpeed, rb.velocity.y);
+
+        }
+        else
+        {
+            if(KnockFromRight == true)                          //Memberikan knockback bila dikanan
+            {
+                rb.velocity = new Vector2(-KBForce, KBForce);
+            }
+            if(KnockFromRight == false)
+            {
+                rb.velocity = new Vector2(KBForce, KBForce);    // Mmeberikan knockback bila di kiri
+            }
+
+            KBCounter -= Time.deltaTime;
+        }
 
         if (move != 0)                                                          //Menggerakkan animasi iddle ke walk atau sebaliknya
         {
@@ -105,4 +136,22 @@ public class PlayerControler : MonoBehaviour
     {
         Gizmos.DrawWireSphere(groundChecker.position, radius);
     }
+
+
+    private void OnTriggerEnter2D(Collider2D collision)    //Untuk gola condition mendapatkan HollyWater
+    {
+        if (collision.CompareTag("Water"))
+        {
+            GoalMananger.singleton.CollectHollyWater(); //Menjalakan fungsi dari GoalMananger Script
+            Destroy(collision.gameObject);              //Menghacurkan game object setelah disentuh
+        }
+        else if (collision.CompareTag("Goal"))
+        {
+            if (GoalMananger.singleton.canEnter)
+            {
+                print("YOU WIN BROH");
+            }
+        }
+    }
 }
+

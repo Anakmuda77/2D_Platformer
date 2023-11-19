@@ -18,7 +18,7 @@ public class EnemyHealth : MonoBehaviour
     public void TakeDemage(float demange)           //Fungsi untuk mengurangi darah enemy
     {   
         health -=  demange;
-        healthUI.fillAmount = health/maxHealth;
+        healthUI.fillAmount = health/maxHealth;     //Healt Bar UI image akan mengubah amout dari healthbar
         if (health <= 0)
         {
             Destroy(gameObject);

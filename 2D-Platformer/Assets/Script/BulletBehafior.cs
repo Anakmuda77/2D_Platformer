@@ -31,5 +31,9 @@ public class BulletBehafior : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        else if (collision.CompareTag("Spike"))
+        {
+            Destroy(gameObject);
+        }
     }
 }
