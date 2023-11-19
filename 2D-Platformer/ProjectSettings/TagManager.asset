@@ -5,6 +5,11 @@ TagManager:
   serializedVersion: 2
   tags:
   - Enemy
+  - Environtment
+  - Spike
+  - Goal
+  - Water
+  - CheckPoint
   layers:
   - Default
   - TransparentFX
