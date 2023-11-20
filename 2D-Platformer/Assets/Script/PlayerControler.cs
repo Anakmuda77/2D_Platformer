@@ -139,6 +139,7 @@ public class PlayerControler : MonoBehaviour
             isFacingRight = false;
         }
     }
+    }
 }
 
     void Jump()
@@ -195,4 +196,3 @@ public class PlayerControler : MonoBehaviour
         }
     }
 }
-
