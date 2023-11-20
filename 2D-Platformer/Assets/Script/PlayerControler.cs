@@ -88,8 +88,8 @@ public class PlayerControler : MonoBehaviour
         }
 
     // Check for left shift key to initiate dash
-    if (Input.GetKeyDown(KeyCode.LeftShift) && !isDashing)
-    {
+        if (Input.GetKeyDown(KeyCode.LeftShift) && !isDashing)
+        {
         isDashing = true;
         dashTime = Time.time;
 
@@ -99,8 +99,10 @@ public class PlayerControler : MonoBehaviour
         // Normalize the dash direction to move in a straight line
         float dashDirection = isFacingRight ? 1f : -1f;
         Vector2 normalizedDashDirection = new Vector2(dashDirection, 0f).normalized;
-        rb.velocity = normalizedDashDirection * dashSpeed;
-    }
+
+        // Use forces for dash movement
+        rb.AddForce(normalizedDashDirection * dashSpeed, ForceMode2D.Impulse);
+        }
 
     if (isDashing)
     {
@@ -113,6 +115,7 @@ public class PlayerControler : MonoBehaviour
         }
     }
     else
+    {
     {
         rb.velocity = new Vector2(move * movementSpeed, rb.velocity.y);
 
