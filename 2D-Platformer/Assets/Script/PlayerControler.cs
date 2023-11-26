@@ -59,49 +59,32 @@ public class PlayerControler : MonoBehaviour
         Movement(); // Call the Dash function in the Update method
     }
 
-    private void FixedUpdate()
+void Movement()
     {
+        float move = Input.GetAxisRaw("Horizontal");
 
-    }
-
-    void Movement()
-    {
-        float move = Input.GetAxisRaw("Horizontal");     //Fungsi untuk menggerakkan player berdasarkan input horizontal
-
-        if(KBCounter <= 0)
+        if (KBCounter <= 0)
         {
             rb.velocity = new Vector2(move * movementSpeed, rb.velocity.y);
-
         }
         else
         {
-            if(KnockFromRight == true)                          //Memberikan knockback bila dikanan
+            if (KnockFromRight == true)
             {
                 rb.velocity = new Vector2(-KBForce, KBForce);
             }
-            if(KnockFromRight == false)
+            if (KnockFromRight == false)
             {
-                rb.velocity = new Vector2(KBForce, KBForce);    // Mmeberikan knockback bila di kiri
+                rb.velocity = new Vector2(KBForce, KBForce);
             }
 
             KBCounter -= Time.deltaTime;
         }
 
-    // Check for left shift key to initiate dash
+        // Check for left shift key to initiate dash
         if (Input.GetKeyDown(KeyCode.LeftShift) && !isDashing)
         {
-        isDashing = true;
-        dashTime = Time.time;
-
-        // Disable gravity while dashing
-        rb.gravityScale = 0f;
-
-        // Normalize the dash direction to move in a straight line
-        float dashDirection = isFacingRight ? 1f : -1f;
-        Vector2 normalizedDashDirection = new Vector2(dashDirection, 0f).normalized;
-
-        // Use forces for dash movement
-        rb.AddForce(normalizedDashDirection * dashSpeed, ForceMode2D.Impulse);
+            StartCoroutine(Dash());
         }
 
     if (isDashing)
@@ -110,12 +93,15 @@ public class PlayerControler : MonoBehaviour
         if (Time.time >= dashTime + dashDuration)
         {
             isDashing = false;
-            rb.velocity = new Vector2(0f, rb.velocity.y); // Stop dashing
-            rb.gravityScale = originalGravityScale; // Restore the original gravity scale
+
+            // Stop dashing by removing the force
+            rb.velocity = new Vector2(0f, rb.velocity.y);
+
+            // Restore the original gravity scale
+            rb.gravityScale = originalGravityScale;
         }
     }
     else
-    {
     {
         rb.velocity = new Vector2(move * movementSpeed, rb.velocity.y);
 
@@ -138,7 +124,6 @@ public class PlayerControler : MonoBehaviour
             transform.eulerAngles = Vector2.up * 180;
             isFacingRight = false;
         }
-    }
     }
 }
 
@@ -173,6 +158,38 @@ public class PlayerControler : MonoBehaviour
         return Physics2D.OverlapCircle(groundChecker.position, radius, WhatIsGround);
     }
 
+    IEnumerator Dash()
+    {
+        isDashing = true;
+        dashTime = Time.time;
+
+        // Disable gravity while dashing
+        rb.gravityScale = 0f;
+
+        // Normalize the dash direction to move in a straight line
+        float dashDirection = isFacingRight ? 1f : -1f;
+        Vector2 normalizedDashDirection = new Vector2(dashDirection, 0f).normalized;
+
+        // Gradually increase the velocity during the dash
+        float elapsedTime = 0f;
+        while (elapsedTime < dashDuration)
+        {
+            rb.velocity = normalizedDashDirection * Mathf.Lerp(0, dashSpeed, elapsedTime / dashDuration);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Ensure the final velocity is set to the desired dash speed
+        rb.velocity = normalizedDashDirection * dashSpeed;
+
+        yield return new WaitForSeconds(dashDuration);
+
+        // Stop dashing
+        isDashing = false;
+
+        // Restore the original gravity scale
+        rb.gravityScale = originalGravityScale;
+    }
 
     private void OnDrawGizmos()
     {
