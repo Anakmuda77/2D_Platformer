@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerControler : MonoBehaviour
 {
@@ -34,7 +35,6 @@ public class PlayerControler : MonoBehaviour
 
 
 
-
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -55,6 +55,7 @@ public class PlayerControler : MonoBehaviour
     private void FixedUpdate()
     {
         Movement();
+
     }
 
 
@@ -62,7 +63,7 @@ public class PlayerControler : MonoBehaviour
     {   
         float move = Input.GetAxisRaw("Horizontal");     //Fungsi untuk menggerakkan player berdasarkan input horizontal
 
-        if(KBCounter <= 0)
+        if (KBCounter <= 0)
         {
             rb.velocity = new Vector2(move * movementSpeed, rb.velocity.y);
 
@@ -149,9 +150,17 @@ public class PlayerControler : MonoBehaviour
         {
             if (GoalMananger.singleton.canEnter)
             {
-                print("YOU WIN BROH");
+
+                    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+             }
+
             }
+
+           
         }
-    }
-}
+         
+         
+     }
+    
+
 
