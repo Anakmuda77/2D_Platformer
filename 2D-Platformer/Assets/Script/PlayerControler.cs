@@ -9,12 +9,13 @@ public class PlayerControler : MonoBehaviour
     public float movementSpeed, jumpForce;
     public bool isFacingRight, isJumping;
     Rigidbody2D rb;
-    public float dashSpeed = 10f;
+    public float dashSpeed = 20f;
     private bool isDashing = false;
-    public float dashDuration = 0.5f;
+    public float dashDuration = 1.5f;
     private float dashTime;
     private float originalGravityScale; // Store the original gravity scale
     // Untuk Ground Checker
+    private bool canMove = true; // Flag to check if the player can move
     public float radius;
     public Transform groundChecker;
     public LayerMask WhatIsGround;
@@ -62,6 +63,9 @@ public class PlayerControler : MonoBehaviour
 void Movement()
     {
         float move = Input.GetAxisRaw("Horizontal");
+
+        if (!canMove)
+            return; // Skip processing input during the dash
 
         if (KBCounter <= 0)
         {
@@ -163,6 +167,9 @@ void Movement()
         isDashing = true;
         dashTime = Time.time;
 
+        // Disable further input while dashing
+        canMove = false;
+
         // Disable gravity while dashing
         rb.gravityScale = 0f;
 
@@ -170,16 +177,7 @@ void Movement()
         float dashDirection = isFacingRight ? 1f : -1f;
         Vector2 normalizedDashDirection = new Vector2(dashDirection, 0f).normalized;
 
-        // Gradually increase the velocity during the dash
-        float elapsedTime = 0f;
-        while (elapsedTime < dashDuration)
-        {
-            rb.velocity = normalizedDashDirection * Mathf.Lerp(0, dashSpeed, elapsedTime / dashDuration);
-            elapsedTime += Time.deltaTime;
-            yield return null;
-        }
-
-        // Ensure the final velocity is set to the desired dash speed
+        // Set the velocity to the maximum dash speed immediately
         rb.velocity = normalizedDashDirection * dashSpeed;
 
         yield return new WaitForSeconds(dashDuration);
@@ -189,8 +187,13 @@ void Movement()
 
         // Restore the original gravity scale
         rb.gravityScale = originalGravityScale;
-    }
 
+        // Ensure the velocity is set to zero after the dash
+        rb.velocity = Vector2.zero;
+
+        // Enable input after the dash is complete
+        canMove = true;
+    }
     private void OnDrawGizmos()
     {
         Gizmos.DrawWireSphere(groundChecker.position, radius);
