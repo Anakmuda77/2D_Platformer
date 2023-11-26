@@ -16,6 +16,7 @@ public class PlayerControler : MonoBehaviour
     private float originalGravityScale; // Store the original gravity scale
     // Untuk Ground Checker
     private bool canMove = true; // Flag to check if the player can move
+    private int jumpsRemaining = 2;
     public float radius;
     public Transform groundChecker;
     public LayerMask WhatIsGround;
@@ -133,9 +134,29 @@ void Movement()
 
     void Jump()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded())                                    // Fungsi agar player bisa melompak dengan menekan spasi
+        // Check for spacebar input to initiate jump
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            rb.velocity = Vector2.up * jumpForce;
+            // Check if the player is on the ground or has remaining jumps
+            if (IsGrounded() || jumpsRemaining > 0)
+            {
+                // Perform the jump
+                rb.velocity = Vector2.up * jumpForce;
+                isJumping = true;
+
+                // If the player is in the air, decrease the remaining jumps
+                if (!IsGrounded())
+                {
+                    jumpsRemaining--;
+                }
+            }
+        }
+
+        // Check if the player is on the ground and reset the jumpsRemaining counter
+        if (IsGrounded())
+        {
+            isJumping = false;
+            jumpsRemaining = 2;
         }
 
 
