@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerControler : MonoBehaviour
 {
@@ -37,7 +38,6 @@ public class PlayerControler : MonoBehaviour
 
     // Respawn
     public Vector2 respawnPoint;
-
 
 
 
