@@ -232,8 +232,14 @@ void Movement()
         {
             if (GoalMananger.singleton.canEnter)
             {
-                print("YOU WIN BROH");
-            }
+
+                    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+             }
+
         }
+
+           
     }
+         
+         
 }
