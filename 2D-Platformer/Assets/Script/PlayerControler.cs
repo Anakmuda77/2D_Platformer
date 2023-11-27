@@ -10,9 +10,9 @@ public class PlayerControler : MonoBehaviour
     public float movementSpeed, jumpForce;
     public bool isFacingRight, isJumping;
     Rigidbody2D rb;
-    public float dashSpeed = 20f;
+    public float dashSpeed = 10f;
     private bool isDashing = false;
-    public float dashDuration = 1.5f;
+    public float dashDuration = 0.5f;
     private float dashTime;
     private float originalGravityScale; // Store the original gravity scale
     // Untuk Ground Checker
