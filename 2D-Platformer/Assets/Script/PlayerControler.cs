@@ -33,6 +33,10 @@ public class PlayerControler : MonoBehaviour
     // Respawn
     public Vector2 respawnPoint;
 
+    // Audio effect Jump
+    public AudioSource jumpSFX;
+    public AudioSource WaterSFX;
+
 
 
     private void Awake()
@@ -109,6 +113,7 @@ public class PlayerControler : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space) && IsGrounded())                                    // Fungsi agar player bisa melompak dengan menekan spasi
         {
+            jumpSFX.Play();
             rb.velocity = Vector2.up * jumpForce;
         }
 
@@ -143,6 +148,7 @@ public class PlayerControler : MonoBehaviour
     {
         if (collision.CompareTag("Water"))
         {
+            WaterSFX.Play();
             GoalMananger.singleton.CollectHollyWater(); //Menjalakan fungsi dari GoalMananger Script
             Destroy(collision.gameObject);              //Menghacurkan game object setelah disentuh
         }

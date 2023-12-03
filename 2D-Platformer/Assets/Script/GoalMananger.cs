@@ -11,6 +11,9 @@ public class GoalMananger : MonoBehaviour
     public int holyWaterColected;
     public bool canEnter; //Goalnya
 
+    //SFX Goal
+    public AudioSource GoalSFX;
+
 
 
     private void Awake()
@@ -23,6 +26,7 @@ public class GoalMananger : MonoBehaviour
         holyWaterColected++;
         if(holyWaterColected >= holyWaterNeeded)
         {
+            GoalSFX.Play();
             canEnter = true;
         }
 
